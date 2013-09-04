@@ -293,3 +293,123 @@ IMPL_SWAPR(SWAPr_e, r_e);
 IMPL_SWAPR(SWAPr_h, r_h);
 IMPL_SWAPR(SWAPr_l, r_l);
 IMPL_SWAPR(SWAPr_a, r_a);
+
+/* -- Data processing Instructions --*/
+#define IMPL_ADD_R(METHOD_NAME, X) \
+void z80::METHOD_NAME(){ \
+  byte aByte = r_a; \
+  r_a += X; \
+  flags = (r_a > 255)?0x10:0; \
+  r_a &= 255; \
+  if(!r_a) \
+    flags |= 0x80; \
+  if((r_a ^ X ^ aByte) & 0x10) \
+    flags |= 0x20; \
+  m=1; \
+}
+
+IMPL_ADD_R(ADDr_b, r_b);
+IMPL_ADD_R(ADDr_c, r_c);
+IMPL_ADD_R(ADDr_d, r_d);
+IMPL_ADD_R(ADDr_e, r_e);
+IMPL_ADD_R(ADDr_h, r_h);
+IMPL_ADD_R(ADDr_l, r_l);
+IMPL_ADD_R(ADDr_a, r_a);
+
+void z80::ADDHL(){
+  byte aByte=r_a;
+  addr_t aAddr = r_h;
+  byte aData = aMMU.readByte((aAddr << 8) + r_l);
+  r_a += aData;
+  flags=(r_a > 255) ? 0x10 : 0;
+  r_a &= 255;
+  
+  if(!r_a)
+    flags |= 0x80;
+  
+  if((r_a ^ aByte ^ aData)&0x10)
+    flags |= 0x20;
+
+  m = 2;
+};
+
+void z80::ADDn(){
+  byte aByte = r_a;
+  byte aData = aMMU.readByte(pc); 
+  r_a += m; 
+  pc++;
+  flags=(r_a > 255) ? 0x10 : 0;
+  r_a &= 255;
+  
+  if(!r_a)
+    flags |= 0x80;
+  
+  if((r_a ^ aByte ^ aData)&0x10)
+    flags |= 0x20;
+
+  m = 2;
+};
+
+#define IMPL_ADDHL(METHOD_NAME,X,Y) \
+void z80::METHOD_NAME(){ \
+  word hl = r_h; \
+  hl = (hl << 8) + r_l; \
+  word tempWord = X; \
+  hl += (tempWord << 8) + Y; \
+  if(hl>65535) \
+    flags |= 0x10; \
+  else \
+    flags &= 0xEF; \ 
+  r_h = (hl >> 8) & 255; \ 
+  r_l =hl & 255; \
+  m = 3; \
+}
+
+IMPL_ADDHL(ADDHLBC, r_b, r_c);
+IMPL_ADDHL(ADDHLDE, r_d, r_e);
+IMPL_ADDHL(ADDHLHL, r_h, r_l);
+
+void z80::ADDHLSP(){
+  word hl = r_h;
+  hl = (hl << 8) + r_l; 
+  hl += sp; 
+  if(hl > 65535) 
+    flags |= 0x10; 
+  else 
+    flags &= 0xEF; 
+  r_h = (hl >> 8) & 255; 
+  r_l = hl & 255; 
+  m = 3;
+}; 
+
+void z80::ADDSPn(){
+  byte i = aMMU.readByte(pc); 
+  if(i > 127) 
+    i=-((~i + 1) & 255); 
+  pc++; 
+  sp+=i; 
+  m=4;
+};
+
+#define IMPL_ADCR(METHOD_NAME, X) \
+void z80::METHOD_NAME(){ \
+  byte a = r_a; \
+  r_a += X; \
+  r_a += (flags & 0x10) ? 1 : 0; \
+  flags = (r_a > 255) ? 0x10 : 0; \
+  r_a &= 255; \
+  if(!r_a) \
+    flags |= 0x80; \ 
+  if((r_a ^ X ^ a) & 0x10) \ 
+    flags |= 0x20; \
+  m=1; \
+}
+
+IMPL_ADCR(ADCr_b, r_b);
+IMPL_ADCR(ADCr_c, r_c);
+IMPL_ADCR(ADCr_d, r_d);
+IMPL_ADCR(ADCr_e, r_e);
+IMPL_ADCR(ADCr_h, r_h);
+IMPL_ADCR(ADCr_l, r_l);
+IMPL_ADCR(ADCr_a, r_a);
+

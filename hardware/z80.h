@@ -158,6 +158,30 @@ public:
   void SWAPr_l();
   void SWAPr_a();
 
+  /*--- Data processing ---*/
+  void ADDr_b();
+  void ADDr_c();
+  void ADDr_d();
+  void ADDr_e();
+  void ADDr_h();
+  void ADDr_l();
+  void ADDr_a();
+  void ADDHL();
+  void ADDn();
+  void ADDHLBC();
+  void ADDHLDE();
+  void ADDHLHL();
+  void ADDHLSP();
+  void ADDSPn(); 
+  
+  void ADCr_b();
+  void ADCr_c();
+  void ADCr_d();
+  void ADCr_e();
+  void ADCr_h();
+  void ADCr_l();
+  void ADCr_a();
+
 };
 
 #endif
